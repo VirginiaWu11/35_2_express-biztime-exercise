@@ -54,4 +54,5 @@ INSERT INTO industries_companies
          ('apple', 'ai'),
          ('apple', 'media'),
          ('apple', 'retail'),
-         ('ibm', 'tech');
+         ('ibm', 'tech'),
+         ('ibm', 'retail');
