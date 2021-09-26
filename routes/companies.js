@@ -57,7 +57,7 @@ router.get("/", async (req, res, next) => {
 router.get("/:code", async (req, res, next) => {
     try {
         const { code } = req.params;
-        const results = await db.query(
+        const joinInvoiceResults = await db.query(
             `SELECT c.code, c.name, c.description, i.id
             FROM companies AS c 
             LEFT JOIN invoices AS i
@@ -65,7 +65,7 @@ router.get("/:code", async (req, res, next) => {
             WHERE c.code=$1`,
             [code]
         );
-        // sample results.rows data:
+        // sample joinInvoiceResults.rows data:
         // [
         // {
         //     "code": "apple",
@@ -86,37 +86,75 @@ router.get("/:code", async (req, res, next) => {
         //     "id": 3
         //   }
         // ]
-        throwErrorIfEmpty(results.rows.length, code);
-        const { name } = results.rows[0];
-        const invoices = results.rows.map((invoice) => invoice.id);
-        console.log(invoices);
-        return res.json({ company: { code, name, invoices } });
+        throwErrorIfEmpty(joinInvoiceResults.rows.length, code);
+        const { name } = joinInvoiceResults.rows[0];
+        const invoices = joinInvoiceResults.rows.map((invoice) => invoice.id);
+
+        // for Many-to-Many join
+        const companiesIndustriesResults = await db.query(
+            `SELECT c.code, c.name, c.description, i.industry FROM companies AS c
+            LEFT JOIN industries_companies AS ic
+            ON c.code = ic.comp_code
+            LEFT JOIN industries AS i
+            ON ic.industry_code = i.code
+            WHERE c.code=$1`,
+            [code]
+        );
+
+        // sample data companiesIndustriesResults.rows:
+        // [
+        //     {
+        //       code: 'apple',
+        //       name: 'Apple Computer',
+        //       description: 'Maker of OSX.',
+        //       industry: 'Technology'
+        //     },
+        //     {
+        //       code: 'apple',
+        //       name: 'Apple Computer',
+        //       description: 'Maker of OSX.',
+        //       industry: 'Artificial intelligence'
+        //     },
+        //     {
+        //       code: 'apple',
+        //       name: 'Apple Computer',
+        //       description: 'Maker of OSX.',
+        //       industry: 'Media'
+        //     },
+        //     {
+        //       code: 'apple',
+        //       name: 'Apple Computer',
+        //       description: 'Maker of OSX.',
+        //       industry: 'Retail'
+        //     }
+        //   ]
+
+        const industries = companiesIndustriesResults.rows.map(
+            (industry) => industry.industry
+        );
+        return res.json({ company: { code, name, invoices, industries } });
         // sample return output:
-        // "{
-        //   "company": {
-        //     "code": "apple",
-        //     "name": "Apple Computer",
-        //     "invoices": [
-        //       1,
-        //       2,
-        //       3
-        //     ]
+        // {
+        //     "company": {
+        //       "code": "apple",
+        //       "name": "Apple Computer",
+        //       "invoices": [
+        //         1,
+        //         2,
+        //         3
+        //       ],
+        //       "industries": [
+        //         "Technology",
+        //         "Artificial intelligence",
+        //         "Media",
+        //         "Retail"
+        //       ]
+        //     }
         //   }
-        // }"
     } catch (e) {
         next(e);
     }
 });
-
-// for Many-to-Many join
-// const results = await db.query(
-//     `SELECT c.code, c.name, c.description, FROM companies AS c
-//     LEFT JOIN industries_companies AS ic
-//     ON c.code = ic.comp_code
-//     LEFT JOIN industries AS ic
-//     ON ic.industry_code = i.code
-//     WHERE c.code=$1`,[code]
-// )
 
 router.post("/", async (req, res, next) => {
     try {
