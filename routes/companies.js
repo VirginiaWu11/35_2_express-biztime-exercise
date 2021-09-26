@@ -5,8 +5,6 @@ const db = require("../db");
 const { throwErrorIfEmpty } = require("../helpers");
 const slugify = require("slugify");
 
-module.exports = router;
-
 router.get("/", async (req, res, next) => {
     try {
         const results = await db.query(`SELECT * FROM companies`);
@@ -207,3 +205,5 @@ router.delete("/:code", async (req, res, next) => {
         next(e);
     }
 });
+
+module.exports = router;

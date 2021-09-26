@@ -5,8 +5,6 @@ const db = require("../db");
 const { throwErrorIfEmpty } = require("../helpers");
 const e = require("express");
 
-module.exports = router;
-
 router.get("/", async (req, res, next) => {
     try {
         const results = await db.query(`SELECT * FROM invoices`);
@@ -98,3 +96,5 @@ router.delete("/:id", async (req, res, next) => {
         next(e);
     }
 });
+
+module.exports = router;
