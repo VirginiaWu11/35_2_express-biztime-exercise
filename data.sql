@@ -44,8 +44,14 @@ INSERT INTO invoices (comp_Code, amt, paid, paid_date)
 
 INSERT INTO industries
   VALUES ('tech', 'Technology'),
-         ('acct', 'Accounting');
+         ('acct', 'Accounting'),
+         ('ai', 'Artificial intelligence'),
+         ('media', 'Media'),
+         ('retail', 'Retail');
 
 INSERT INTO industries_companies 
   VALUES ('apple', 'tech'),
+         ('apple', 'ai'),
+         ('apple', 'media'),
+         ('apple', 'retail'),
          ('ibm', 'tech');
