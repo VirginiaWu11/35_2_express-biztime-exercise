@@ -27,3 +27,12 @@ describe("GET /companies", () => {
         expect(res.body).toEqual({ companies: [testCompany] });
     });
 });
+
+// need to add invoices to company
+// describe("GET /companies/:code", () => {
+//     test("Get a single company", async () => {
+//         const res = await request(app).get(`/companies/${testCompany.code}`);
+//         expect(res.statusCode).toBe(200);
+//         expect(res.body).toEqual({ company: [testCompany] });
+//     });
+// });
