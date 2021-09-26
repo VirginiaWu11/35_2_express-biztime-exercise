@@ -57,4 +57,18 @@ router.get("/:code", async (req, res, next) => {
     }
 });
 
+// associating an industry to a company
+router.post("/linkIndustry", async (req, res, next) => {
+    try {
+        const { companyCode, industryCode } = req.body;
+        const results = await db.query(
+            `INSERT INTO industries_companies (comp_code, industry_code) VALUES ($1, $2) RETURNING comp_code, industry_code`,
+            [companyCode, industryCode]
+        );
+        return res.status(201).json({ association: results.rows[0] });
+    } catch (e) {
+        next(e);
+    }
+});
+
 module.exports = router;
