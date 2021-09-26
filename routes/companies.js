@@ -16,29 +16,107 @@ router.get("/", async (req, res, next) => {
     }
 });
 
+//2 separate queries
+// router.get("/:code", async (req, res, next) => {
+//     try {
+//         const { code } = req.params;
+//         const companyResults = await db.query(
+//             `SELECT * FROM companies WHERE code = $1`,
+//             [code]
+//         );
+//         const invoicesResults = await db.query(
+//             "SELECT * FROM invoices WHERE comp_code = $1",
+//             [code]
+//         );
+
+//         throwErrorIfEmpty(companyResults.rows.length, code);
+
+//         const company = companyResults.rows[0];
+//         const invoices = invoicesResults.rows;
+
+//         company.invoices = invoices.map((inv) => inv.id);
+//         return res.json({ company: company });
+//         //sample output: {
+//         //   "company": {
+//         //     "code": "apple",
+//         //     "name": "Apple Computer",
+//         //     "description": "Maker of OSX.",
+//         //     "invoices": [
+//         //       1,
+//         //       2,
+//         //       3
+//         //     ]
+//         //   }
+//         // }
+//     } catch (e) {
+//         next(e);
+//     }
+// });
+
+// try with LEFT JOIN - one query
 router.get("/:code", async (req, res, next) => {
     try {
         const { code } = req.params;
-        const companyResults = await db.query(
-            `SELECT * FROM companies WHERE code = $1`,
+        const results = await db.query(
+            `SELECT c.code, c.name, c.description, i.id
+            FROM companies AS c 
+            LEFT JOIN invoices AS i
+            ON c.code = i.comp_code
+            WHERE c.code=$1`,
             [code]
         );
-        const invoicesResults = await db.query(
-            "SELECT * FROM invoices WHERE comp_code = $1",
-            [code]
-        );
-
-        throwErrorIfEmpty(companyResults.rows.length, code);
-
-        const company = companyResults.rows[0];
-        const invoices = invoicesResults.rows;
-
-        company.invoices = invoices.map((inv) => inv.id);
-        return res.json({ company: company });
+        // sample results.rows data:
+        // [
+        // {
+        //     "code": "apple",
+        //     "name": "Apple Computer",
+        //     "description": "Maker of OSX.",
+        //     "id": 1
+        //   },
+        //   {
+        //     "code": "apple",
+        //     "name": "Apple Computer",
+        //     "description": "Maker of OSX.",
+        //     "id": 2
+        //   },
+        //   {
+        //     "code": "apple",
+        //     "name": "Apple Computer",
+        //     "description": "Maker of OSX.",
+        //     "id": 3
+        //   }
+        // ]
+        throwErrorIfEmpty(results.rows.length, code);
+        const { name } = results.rows[0];
+        const invoices = results.rows.map((invoice) => invoice.id);
+        console.log(invoices);
+        return res.json({ company: { code, name, invoices } });
+        // sample return output:
+        // "{
+        //   "company": {
+        //     "code": "apple",
+        //     "name": "Apple Computer",
+        //     "invoices": [
+        //       1,
+        //       2,
+        //       3
+        //     ]
+        //   }
+        // }"
     } catch (e) {
         next(e);
     }
 });
+
+// for Many-to-Many join
+// const results = await db.query(
+//     `SELECT c.code, c.name, c.description, FROM companies AS c
+//     LEFT JOIN industries_companies AS ic
+//     ON c.code = ic.comp_code
+//     LEFT JOIN industries AS ic
+//     ON ic.industry_code = i.code
+//     WHERE c.code=$1`,[code]
+// )
 
 router.post("/", async (req, res, next) => {
     try {
