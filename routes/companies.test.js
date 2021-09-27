@@ -3,36 +3,33 @@ process.env.NODE_ENV = "test";
 const request = require("supertest");
 const app = require("../app");
 const db = require("../db");
+const { createData, deleteData } = require("../_test-common");
 
-let testCompany;
-beforeEach(async () => {
-    const result = await db.query(
-        `INSERT INTO companies (code, name, description) VALUES ('google', 'Google', 'search engine') RETURNING  code, name, description`
-    );
-    testCompany = result.rows[0];
-});
+beforeEach(createData);
 
-afterEach(async () => {
-    await db.query(`DELETE FROM companies`);
-});
+afterEach(deleteData);
 
 afterAll(async () => {
     await db.end(); // sever the connection with the database
 });
 
 describe("GET /companies", () => {
-    test("Get a list with one company", async () => {
+    test("Get a list with two companies", async () => {
         const res = await request(app).get("/companies");
         expect(res.statusCode).toBe(200);
-        expect(res.body).toEqual({ companies: [testCompany] });
+        expect(res.body).toEqual({
+            companies: [
+                {
+                    code: "apple",
+                    name: "Apple",
+                    description: "Maker of OSX.",
+                },
+                {
+                    code: "ibm",
+                    name: "IBM",
+                    description: "Big blue.",
+                },
+            ],
+        });
     });
 });
-
-// need to add invoices to company
-// describe("GET /companies/:code", () => {
-//     test("Get a single company", async () => {
-//         const res = await request(app).get(`/companies/${testCompany.code}`);
-//         expect(res.statusCode).toBe(200);
-//         expect(res.body).toEqual({ company: [testCompany] });
-//     });
-// });
