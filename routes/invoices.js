@@ -22,7 +22,7 @@ router.get("/:id", async (req, res, next) => {
         ]);
         throwErrorIfEmpty(results.rows.length, id);
 
-        return res.json({ invoices: results.rows });
+        return res.json({ invoice: results.rows });
     } catch (e) {
         next(e);
     }
@@ -35,7 +35,7 @@ router.post("/", async (req, res, next) => {
             `INSERT INTO invoices (comp_code, amt) VALUES ($1,$2) RETURNING id, comp_code, amt, paid, add_date, paid_date`,
             [comp_code, amt]
         );
-        return res.status(201).json({ invoices: results.rows[0] });
+        return res.status(201).json({ invoice: results.rows[0] });
     } catch (e) {
         next(e);
     }
@@ -91,7 +91,7 @@ router.delete("/:id", async (req, res, next) => {
         console.log(results);
         throwErrorIfEmpty(results.rows.length, id);
 
-        return res.send({ msg: "Deleted" });
+        return res.send({ status: "deleted" });
     } catch (e) {
         next(e);
     }
