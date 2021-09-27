@@ -34,7 +34,7 @@ describe("GET /companies", () => {
     });
 });
 
-describe("GET /companies/apple", function () {
+describe("GET /companies/:code", function () {
     test("It return company info", async function () {
         const response = await request(app).get("/companies/apple");
 
@@ -75,6 +75,36 @@ describe("POST /companies", function () {
         const response = await request(app)
             .post("/companies")
             .send({ name: "Apple", description: "Huh?" });
+
+        expect(response.status).toEqual(500);
+    });
+});
+
+describe("PUT /companies/:code", function () {
+    test("It should update company", async function () {
+        const response = await request(app)
+            .put("/companies/apple")
+            .send({ name: "AppleEdit", description: "NewDescrip" });
+
+        expect(response.body).toEqual({
+            company: {
+                code: "apple",
+                name: "AppleEdit",
+                description: "NewDescrip",
+            },
+        });
+    });
+
+    test("It should return 404 for no-such-comp", async function () {
+        const response = await request(app)
+            .put("/companies/blargh")
+            .send({ name: "Blargh" });
+
+        expect(response.status).toEqual(404);
+    });
+
+    test("It should return 500 for missing data", async function () {
+        const response = await request(app).put("/companies/apple").send({});
 
         expect(response.status).toEqual(500);
     });
