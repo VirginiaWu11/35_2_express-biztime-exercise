@@ -38,7 +38,7 @@ describe("GET /companies/apple", function () {
     test("It return company info", async function () {
         const response = await request(app).get("/companies/apple");
 
-        // expect(response.statusCode).toBe(200);
+        expect(response.statusCode).toBe(200);
         expect(response.body).toEqual({
             company: {
                 code: "apple",
@@ -53,5 +53,29 @@ describe("GET /companies/apple", function () {
     test("It should return 404 for no-such-company", async function () {
         const response = await request(app).get("/companies/blargh");
         expect(response.status).toEqual(404);
+    });
+});
+
+describe("POST /companies", function () {
+    test("It should add company", async function () {
+        const response = await request(app)
+            .post("/companies")
+            .send({ name: "TacoTime", description: "Yum!" });
+
+        expect(response.body).toEqual({
+            company: {
+                code: "tacotime",
+                name: "TacoTime",
+                description: "Yum!",
+            },
+        });
+    });
+
+    test("It should return 500 for conflict", async function () {
+        const response = await request(app)
+            .post("/companies")
+            .send({ name: "Apple", description: "Huh?" });
+
+        expect(response.status).toEqual(500);
     });
 });

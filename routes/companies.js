@@ -170,7 +170,7 @@ router.post("/", async (req, res, next) => {
                 description,
             ]
         );
-        return res.status(201).json({ companies: results.rows[0] });
+        return res.status(201).json({ company: results.rows[0] });
     } catch (e) {
         next(e);
     }
