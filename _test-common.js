@@ -4,9 +4,13 @@ const db = require("./db");
 
 class testHelpers {
     static async createData() {
+        // to fix error - duplicate key value violates unique constraint "companies_pkey"
+        await db.query("SELECT setval('invoices_id_seq', 1, false)");
+
         await db.query(`INSERT INTO companies (code, name, description)
         VALUES ('apple', 'Apple', 'Maker of OSX.'), 
         ('ibm', 'IBM', 'Big blue.')`);
+
         await db.query(
             `INSERT INTO invoices (comp_code, amt, paid, add_date, paid_date)
             VALUES ('apple', 100, false, '2018-01-01', null),

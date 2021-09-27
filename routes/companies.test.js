@@ -33,3 +33,25 @@ describe("GET /companies", () => {
         });
     });
 });
+
+describe("GET /companies/apple", function () {
+    test("It return company info", async function () {
+        const response = await request(app).get("/companies/apple");
+
+        // expect(response.statusCode).toBe(200);
+        expect(response.body).toEqual({
+            company: {
+                code: "apple",
+                name: "Apple",
+                description: "Maker of OSX.",
+                invoices: [1, 2],
+                industries: [null],
+            },
+        });
+    });
+
+    test("It should return 404 for no-such-company", async function () {
+        const response = await request(app).get("/companies/blargh");
+        expect(response.status).toEqual(404);
+    });
+});

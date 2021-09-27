@@ -85,7 +85,7 @@ router.get("/:code", async (req, res, next) => {
         //   }
         // ]
         throwErrorIfEmpty(joinInvoiceResults.rows.length, code);
-        const { name } = joinInvoiceResults.rows[0];
+        const { name, description } = joinInvoiceResults.rows[0];
         const invoices = joinInvoiceResults.rows.map((invoice) => invoice.id);
 
         // for Many-to-Many join
@@ -130,7 +130,9 @@ router.get("/:code", async (req, res, next) => {
         const industries = companiesIndustriesResults.rows.map(
             (industry) => industry.industry
         );
-        return res.json({ company: { code, name, invoices, industries } });
+        return res.json({
+            company: { code, name, invoices, description, industries },
+        });
         // sample return output:
         // {
         //     "company": {
