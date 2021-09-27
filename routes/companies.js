@@ -202,7 +202,7 @@ router.delete("/:code", async (req, res, next) => {
         console.log(results);
         throwErrorIfEmpty(results.rows.length, code);
 
-        return res.send({ msg: "Deleted" });
+        return res.send({ status: "deleted" });
     } catch (e) {
         next(e);
     }

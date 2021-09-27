@@ -109,3 +109,17 @@ describe("PUT /companies/:code", function () {
         expect(response.status).toEqual(500);
     });
 });
+
+describe("DELETE /companies", function () {
+    test("It should delete company", async function () {
+        const response = await request(app).delete("/companies/apple");
+
+        expect(response.body).toEqual({ status: "deleted" });
+    });
+
+    test("It should return 404 for no-such-comp", async function () {
+        const response = await request(app).delete("/companies/blargh");
+
+        expect(response.status).toEqual(404);
+    });
+});
